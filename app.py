@@ -14,62 +14,92 @@ st.set_page_config(
 st.title("📊 Employee Attrition Forecasting Portal")
 st.write("HR Analytics | Machine Learning | Employee Retention")
 
-# Load dataset
 df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
 
-# Features
 features = [
-    "Age", "BusinessTravel", "Department", "DistanceFromHome",
-    "JobRole", "JobSatisfaction", "MonthlyIncome", "OverTime",
-    "TotalWorkingYears", "YearsAtCompany", "YearsInCurrentRole",
-    "YearsSinceLastPromotion", "YearsWithCurrManager",
-    "EnvironmentSatisfaction", "WorkLifeBalance", "JobInvolvement",
-    "PerformanceRating", "StockOptionLevel", "MaritalStatus",
-    "NumCompaniesWorked", "TrainingTimesLastYear"
+    "Age",
+    "BusinessTravel",
+    "Department",
+    "DistanceFromHome",
+    "JobRole",
+    "JobSatisfaction",
+    "MonthlyIncome",
+    "OverTime",
+    "TotalWorkingYears",
+    "YearsAtCompany",
+    "YearsInCurrentRole",
+    "YearsSinceLastPromotion",
+    "YearsWithCurrManager",
+    "EnvironmentSatisfaction",
+    "WorkLifeBalance",
+    "JobInvolvement",
+    "PerformanceRating",
+    "StockOptionLevel",
+    "MaritalStatus",
+    "NumCompaniesWorked",
+    "TrainingTimesLastYear"
 ]
 
 categorical_features = [
-    "BusinessTravel", "Department", "JobRole",
-    "OverTime", "MaritalStatus"
+    "BusinessTravel",
+    "Department",
+    "JobRole",
+    "OverTime",
+    "MaritalStatus"
 ]
 
 numeric_features = [
-    col for col in features if col not in categorical_features
+    col for col in features
+    if col not in categorical_features
 ]
 
-# Train model
 @st.cache_resource
 def train_model(data):
 
     X = data[features]
-    y = data["Attrition"].map({"Yes": 1, "No": 0})
+    y = data["Attrition"].map({
+        "Yes": 1,
+        "No": 0
+    })
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features),
-            ("num", "passthrough", numeric_features)
+            (
+                "cat",
+                OneHotEncoder(handle_unknown="ignore"),
+                categorical_features
+            ),
+            (
+                "num",
+                "passthrough",
+                numeric_features
+            )
         ]
     )
 
     model = Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            ("classifier", XGBClassifier(
-                n_estimators=100,
-                max_depth=3,
-                learning_rate=0.1,
-                random_state=42,
-                eval_metric="logloss"
-            ))
+            (
+                "classifier",
+                XGBClassifier(
+                    n_estimators=100,
+                    max_depth=3,
+                    learning_rate=0.1,
+                    random_state=42,
+                    eval_metric="logloss"
+                )
+            )
         ]
     )
 
     model.fit(X, y)
+
     return model
+
 
 model = train_model(df)
 
-# Sidebar
 st.sidebar.header("🔎 Dashboard Filters")
 
 dept = st.sidebar.multiselect(
@@ -78,22 +108,35 @@ dept = st.sidebar.multiselect(
     default=df["Department"].unique()
 )
 
-filtered_df = df[df["Department"].isin(dept)]
+filtered_df = df[
+    df["Department"].isin(dept)
+]
 
-# Prediction
 st.header("🔮 Employee Attrition Prediction")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    age = st.number_input("Age", 18, 70, 30)
+
+    age = st.number_input(
+        "Age",
+        18,
+        70,
+        30
+    )
 
     distance = st.number_input(
-        "Distance From Home", 1, 30, 5
+        "Distance From Home",
+        1,
+        30,
+        5
     )
 
     monthly_income = st.number_input(
-        "Monthly Income", 1000, 50000, 5000
+        "Monthly Income",
+        1000,
+        50000,
+        5000
     )
 
     department = st.selectbox(
@@ -106,7 +149,9 @@ with col1:
         df["JobRole"].unique()
     )
 
+
 with col2:
+
     business_travel = st.selectbox(
         "Business Travel",
         df["BusinessTravel"].unique()
@@ -118,61 +163,103 @@ with col2:
     )
 
     job_satisfaction = st.slider(
-        "Job Satisfaction", 1, 4, 3
+        "Job Satisfaction",
+        1,
+        4,
+        3
     )
 
     environment_satisfaction = st.slider(
-        "Environment Satisfaction", 1, 4, 3
+        "Environment Satisfaction",
+        1,
+        4,
+        3
     )
 
     work_life_balance = st.slider(
-        "Work Life Balance", 1, 4, 3
+        "Work Life Balance",
+        1,
+        4,
+        3
     )
 
+
 with col3:
+
     marital_status = st.selectbox(
         "Marital Status",
         df["MaritalStatus"].unique()
     )
 
     total_working_years = st.number_input(
-        "Total Working Years", 0, 50, 5
+        "Total Working Years",
+        0,
+        50,
+        5
     )
 
     years_at_company = st.number_input(
-        "Years At Company", 0, 40, 3
+        "Years At Company",
+        0,
+        40,
+        3
     )
 
     years_current_role = st.number_input(
-        "Years In Current Role", 0, 20, 2
+        "Years In Current Role",
+        0,
+        20,
+        2
     )
 
     years_promotion = st.number_input(
-        "Years Since Last Promotion", 0, 20, 1
+        "Years Since Last Promotion",
+        0,
+        20,
+        1
     )
 
+
 years_manager = st.number_input(
-    "Years With Current Manager", 0, 20, 2
+    "Years With Current Manager",
+    0,
+    20,
+    2
 )
 
 job_involvement = st.slider(
-    "Job Involvement", 1, 4, 3
+    "Job Involvement",
+    1,
+    4,
+    3
 )
 
 performance_rating = st.slider(
-    "Performance Rating", 1, 4, 3
+    "Performance Rating",
+    1,
+    4,
+    3
 )
 
 stock_option = st.slider(
-    "Stock Option Level", 0, 3, 1
+    "Stock Option Level",
+    0,
+    3,
+    1
 )
 
 num_companies = st.number_input(
-    "Number of Companies Worked", 0, 10, 1
+    "Number of Companies Worked",
+    0,
+    10,
+    1
 )
 
 training = st.number_input(
-    "Training Times Last Year", 0, 10, 3
+    "Training Times Last Year",
+    0,
+    10,
+    3
 )
 
 if st.button("🔮 Predict Attrition"):
@@ -212,12 +299,14 @@ if st.button("🔮 Predict Attrition"):
 
     if probability >= 0.70:
         st.error("🔴 High Risk")
+
     elif probability >= 0.40:
         st.warning("🟠 Medium Risk")
+
     else:
         st.success("🟢 Low Risk")
 
-# Dashboard
+
 st.divider()
 
 st.header("📊 HR Analytics Dashboard")
@@ -230,23 +319,34 @@ employees_left = (
     filtered_df["Attrition"] == "Yes"
 ).sum()
 
-attrition_rate = (
-    employees_left / total_employees * 100
-    if total_employees > 0 else 0
+if total_employees > 0:
+    attrition_rate = (
+        employees_left / total_employees
+    ) * 100
+else:
+    attrition_rate = 0
+
+col1.metric(
+    "👥 Total Employees",
+    total_employees
 )
 
-col1.metric("👥 Total Employees", total_employees)
-col2.metric("🚪 Employees Left", employees_left)
-col3.metric("📈 Attrition Rate", f"{attrition_rate:.1f}%")
+col2.metric(
+    "🚪 Employees Left",
+    employees_left
+)
 
-# Attrition
+col3.metric(
+    "📈 Attrition Rate",
+    f"{attrition_rate:.1f}%"
+)
+
 st.subheader("📌 Attrition Count")
 
 st.bar_chart(
     filtered_df["Attrition"].value_counts()
 )
 
-# Department
 st.subheader("🏢 Attrition by Department")
 
 department_attrition = pd.crosstab(
@@ -256,7 +356,6 @@ department_attrition = pd.crosstab(
 
 st.bar_chart(department_attrition)
 
-# Job Role
 st.subheader("💼 Attrition by Job Role")
 
 jobrole_attrition = pd.crosstab(
@@ -266,7 +365,6 @@ jobrole_attrition = pd.crosstab(
 
 st.bar_chart(jobrole_attrition)
 
-# Job Satisfaction
 st.subheader("😊 Job Satisfaction vs Attrition")
 
 satisfaction_attrition = pd.crosstab(
@@ -276,7 +374,6 @@ satisfaction_attrition = pd.crosstab(
 
 st.bar_chart(satisfaction_attrition)
 
-# Years at company
 st.subheader("📅 Years at Company vs Attrition")
 
 years_attrition = pd.crosstab(
@@ -286,7 +383,6 @@ years_attrition = pd.crosstab(
 
 st.bar_chart(years_attrition)
 
-# Employee data
 st.subheader("📋 Employee Data")
 
 st.dataframe(
